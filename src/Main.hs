@@ -26,6 +26,7 @@ import qualified Data.Store           as S
 import qualified Data.Text            as T
 import qualified Data.Text.Encoding   as T
 import           Data.Typeable
+import qualified Data.Winery          as W
 import           Dataset
 import           GHC.Generics
 import qualified GHC.Packing          as P
@@ -57,6 +58,11 @@ instance {-# OVERLAPPABLE #-} R.Persist a => R.Persist (BinTree a)
 
 instance {-# OVERLAPPABLE #-} CBOR.Serialise a =>
                               CBOR.Serialise (BinTree a)
+
+
+instance W.Serialise a => W.Serialise (BinTree a) where
+  bundleSerialise = W.bundleVariant id
+
 
 -- -- Specialised instances, might increase performance
 -- instance {-# OVERLAPPING #-} F.Flat [Direction]
@@ -108,6 +114,9 @@ data Direction
            , R.Persist
            , F.Flat
            )
+
+instance W.Serialise Direction where
+  bundleSerialise = W.bundleVariant id
 
 instance Arbitrary Direction where
   arbitrary = elements [North, South, Center, East, West]
@@ -173,7 +182,10 @@ data PkgStore =
   PkgStore
 
 data PkgShow =
-    PkgShow
+  PkgShow
+
+data PkgWinery =
+  PkgWinery
 
 class Serialize lib a where
   serialize :: lib -> a -> IO BS.ByteString
@@ -229,6 +241,13 @@ instance (Show a, Read a, NFData a) => Serialize PkgShow a where
     {-# NOINLINE deserialize #-}
     deserialize _ = return . force . read . T.unpack . T.decodeUtf8
 
+instance (W.Serialise a, NFData a) => Serialize PkgWinery a where
+  {-# NOINLINE serialize #-}
+  serialize _ = return . force . W.serialiseOnly
+  {-# NOINLINE deserialize #-}
+  deserialize _ = return . force . W.evalDecoder W.decodeCurrent
+
+
 pkgs ::
      ( NFData a
      , C.Serialize a
@@ -254,6 +273,7 @@ pkgs =
   , ("persist", serialize PkgPersist, deserialize PkgPersist)
   , ("packman", serialize PkgPackman, deserialize PkgPackman)
   , ("serialise", serialize PkgCBOR, deserialize PkgCBOR)
+  , ("winery", serialize PkgWinery, deserialize PkgWinery)
   -- , ("show", serialize PkgShow, deserialize PkgShow)
   ]
 
@@ -341,7 +361,8 @@ sizes ::
      , Serialise t
      , R.Persist t
      , C.Serialize t
-     , S.Store t,Show t, Read t
+     , S.Store t, Show t, Read t
+     , W.Serialise t
      )
   => (String, t)
   -> IO ()
@@ -362,7 +383,8 @@ benchs ::
      , Serialise a
      , R.Persist a
      , C.Serialize a
-     , S.Store a,Read a,Show a
+     , S.Store a, Read a, Show a
+     , W.Serialise a
      )
   => (String, a)
   -> [Benchmark]
