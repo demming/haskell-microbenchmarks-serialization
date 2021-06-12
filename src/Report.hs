@@ -14,7 +14,7 @@ import Statistics.Types
 import System.Directory
 import System.FilePath
 import Text.Printf
-import Data.Bifunctor  
+import Data.Bifunctor
 import Data.Char
 
 -- | Map test names to test measures
@@ -25,7 +25,7 @@ data Measure = Measure
   , mValue :: Double -- ^Execution time (in ms or bytes, depending on the test)
   } deriving (Show, Read, Eq, Generic, NFData, Ord)
 
-{- | 
+{- |
 >>> import Data.List
 >>> let m = Measure "deserialization (time)/BinTree Direction-binary" 1989
 >>> let m2 = Measure "serialization (time)/BinTree Direction-binary" 1004
@@ -61,14 +61,14 @@ data Measure = Measure
 >>> summaryTable ms
 [("BinTree Direction",[("deserialization (time)",[(1989.0,[Measure {mTest = "deserialization (time)/BinTree Direction-binary", mValue = 1989.0}])]),("serialization (time)",[(1004.0,[Measure {mTest = "serialization (time)/BinTree Direction-binary", mValue = 1004.0}])]),("size (bytes)",[(6291455.0,[Measure {mTest = "size (bytes)/BinTree Direction-binary", mValue = 6291455.0}])])]),("Cars",[("size (bytes)",[(300000.0,[Measure {mTest = "size (bytes)/Cars-flat", mValue = 300000.0}]),(301455.0,[Measure {mTest = "size (bytes)/Cars-binary", mValue = 301455.0}])])])]
 
->>> renderTable ms 
+>>> renderTable ms
 "|Dataset\\Measure|deserialization|serialization|size|\n| ---| ---| ---| ---|\n|BinTree Direction|[binary](https://hackage.haskell.org/package/binary)|[binary](https://hackage.haskell.org/package/binary)|[binary](https://hackage.haskell.org/package/binary)|\n|Cars|||[flat](https://hackage.haskell.org/package/flat),[binary](https://hackage.haskell.org/package/binary)|\n"
 
 >>> addTransfers_ ms
 fromList [("deserialization (time)/BinTree Direction-binary",Measure {mTest = "deserialization (time)/BinTree Direction-binary", mValue = 1989.0}),("serialization (time)/BinTree Direction-binary",Measure {mTest = "serialization (time)/BinTree Direction-binary", mValue = 1004.0}),("size (bytes)/BinTree Direction-binary",Measure {mTest = "size (bytes)/BinTree Direction-binary", mValue = 6291455.0}),("size (bytes)/Cars-binary",Measure {mTest = "size (bytes)/Cars-binary", mValue = 301455.0}),("size (bytes)/Cars-flat",Measure {mTest = "size (bytes)/Cars-flat", mValue = 300000.0}),("transfer [10 MBits] (time)/BinTree Direction-binary",Measure {mTest = "transfer [10 MBits] (time)/BinTree Direction-binary", mValue = 8026.164}),("transfer [100 MBits] (time)/BinTree Direction-binary",Measure {mTest = "transfer [100 MBits] (time)/BinTree Direction-binary", mValue = 3496.3164}),("transfer [1000 MBits] (time)/BinTree Direction-binary",Measure {mTest = "transfer [1000 MBits] (time)/BinTree Direction-binary", mValue = 3043.33164})]
 -}
 renderTable :: Measures -> String
-renderTable ms = 
+renderTable ms =
   let tests = allOf mObj ms
       kinds = allOf mType ms
       vals = allOf mSub ms
@@ -78,16 +78,16 @@ renderTable ms =
       pkgVals = map snd . tops . sort . catMaybes . map ((\m -> (mValue m,pkgRef $ mSub m)) <$>)
       tops [] = []
       tops hs = let limit = fst (head hs) * 1.3 in takeWhile (\e -> fst e <= limit) hs
-      showPkgs = intercalate "," . pkgVals 
-      mdRow vs = concat["|",intercalate "|" vs,"|"]
-      pkgRef name = concat ["[",name,"](https://hackage.haskell.org/package/",name,")"]
-      short = unwords . init . words 
+      showPkgs = intercalate "," . pkgVals
+      mdRow vs = concat["|", intercalate "|" vs, "|"]
+      pkgRef name = concat ["[", name, "](https://hackage.haskell.org/package/", name, ")"]
+      short = unwords . init . words
 
 tos :: String -> String -> String -> Measures -> Maybe Measure
 tos t o s ms = M.lookup (concat[t,"/",o,"-",s]) ms
 
 summaryTable :: M.Map k Measure
-                      -> [(String, [(String, [(Double, [Measure])])])]
+             -> [(String, [(String, [(Double, [Measure])])])]
 summaryTable = map (second $ (map (second $ by mValue) . by mType)) . by mObj . M.elems
 
 addTransfers :: FilePath -> IO ()
@@ -96,27 +96,26 @@ addTransfers workDir = addMeasures__ workDir addTransfers_ >> return ()
 addTransfers_ :: Measures -> Measures
 addTransfers_ ms =
   let tests = allOf mObjSub ms
+
       addT :: Measures -> String -> Measures
-      addT ms o =
-        fromMaybe ms $
-        (\ser des siz ->
-           let add1 :: Double -> Measures -> Measures
-               add1 megaBits ms =
-                 let trans =
-                       concat
-                         [ "transfer ["
-                         , show (round megaBits :: Integer)
-                         , " MBits] (time)/"
-                         , o
-                         ]
-                     time =
-                       mValue ser + mValue des +
-                       mValue siz * 8 / (megaBits * 1000)
-                  in add (Measure trans time) ms
-            in add1 1000 (add1 100 (add1 10 ms))) <$>
+      addT ms o = fromMaybe ms $ f <$>
         M.lookup ("serialization (time)/" ++ o) ms <*>
         M.lookup ("deserialization (time)/" ++ o) ms <*>
         M.lookup ("size (bytes)/" ++ o) ms
+        where
+          f ser des siz =
+            let add1 :: Double -> Measures -> Measures
+                add1 megaBits ms =
+                  let trans = concat
+                        [ "transfer ["
+                        , show (round megaBits :: Integer)
+                        , " MBits] (time)/"
+                        , o
+                        ]
+                      time = mValue ser + mValue des +
+                             mValue siz * 8 / (megaBits * 1000)
+                   in add (Measure trans time) ms
+             in add1 1000 (add1 100 (add1 10 ms))
    in foldl addT ms tests
 
 add :: Measure -> Measures -> Measures
@@ -269,11 +268,10 @@ reportMeasures__ f =
 
 printMeasuresDiff :: (Measures, Measures, Measures) -> IO ()
 printMeasuresDiff (m, m', _) =
-  mapM_ (\(n, d) -> putStrLn (unwords [n, show d, "%"])) . M.toList $
-  M.intersectionWith
-    (\a b -> round ((mValue b / mValue a - 1) * 100) :: Int)
-    m
-    m'
+  mapM_ g . M.toList $ M.intersectionWith f m m'
+  where
+    f a b    = round ((mValue b / mValue a - 1) * 100) :: Int
+    g (n, d) = putStrLn (unwords [n, show d, "%"])
 
 readReports :: FilePath -> IO [Report]
 readReports jsonReportFile = do
@@ -287,36 +285,36 @@ readReports jsonReportFile = do
           Right (_, _, reports) -> reports
           _ -> [] -- M.empty
 
+
 report :: String -> [(String, Double)] -> String
-report _ [] = []
-report name rs
- =
+report _    [] = []
+report name rs =
   let (_, rss) = report_ rs
-      width = maximum . map (length . fst) $ rs
-      out = ["| ---| ---|","| package | performance |","",unwords ["####",name, "(best first)"]] 
-      -- out = ["| ---| ---| ---|","| package | measure | relative measure |","",unwords ["####",name, "(best first)"]] 
+      width    = maximum . map (length . fst) $ rs
+      out      = ["| ---| ---|","| package | performance |","",unwords ["####",name, "(best first)"]]
+      -- out = ["| ---| ---| ---|","| package | measure | relative measure |","",unwords ["####",name, "(best first)"]]
+
+      f out (n, r, a) =
+        let bold n = concat ["**",n,"**"]
+            marked n = -- fix prob with github bold display
+              if r <= 1.3
+                then if isSpace (head n)
+                    then let (n1,n2) = span isSpace n in n1 ++ bold n2
+                    else let (n1,n2) = span (not . isSpace) n in bold n1 ++ n2
+                else n
+        in unwords
+              [ "|"
+              ,marked (printString width n) -- pkg name
+              ,"|"
+              -- , printf "%11.1f" a -- absolute measure
+              -- ,"|"
+              , marked (printDouble r) -- relative measure
+              , "|"] :
+            out
+
    in unlines . reverse $
       "" :
-      foldl'
-        (\out (n, r, a) ->
-           let bold n = concat ["**",n,"**"] 
-               marked n = -- fix prob with github bold display
-                 if r <= 1.3 
-                   then if isSpace (head n) 
-                        then let (n1,n2) = span isSpace n in n1 ++ bold n2 
-                        else let (n1,n2) = span (not . isSpace) n in bold n1 ++ n2 
-                   else n
-            in unwords
-                 [ "|"
-                 ,marked (printString width n) -- pkg name
-                 ,"|"
-                 -- , printf "%11.1f" a -- absolute measure
-                 -- ,"|"
-                 , marked (printDouble r) -- relative measure
-                 , "|"] :
-               out)
-        out
-        rss
+      foldl' f out rss
 
 report_ :: (Fractional c, Ord c) => [(a, c)] -> ((a, c), [(a, c, c)])
 report_ rs =
