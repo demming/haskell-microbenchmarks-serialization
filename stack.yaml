@@ -40,7 +40,10 @@ extra-deps:
 - serialise-0.2.3.0
 
 # datasets
-- third-party/dh-core
+# TODO The data sets are acquired at run-time. Make sure that their metadata is also modifiable at run-time.
+#      For this matter, simply provide a Dhall configuration.
+# TODO Depend on my github or gitlab branch.
+- third-party/dh-core/datasets
 
 - winery-1.3.2
 - barbies-th-0.1.8@sha256:2855c0f80c683ad30295370e5d9e786d909355695054ae4126ae61ea5c7779c4,1085
