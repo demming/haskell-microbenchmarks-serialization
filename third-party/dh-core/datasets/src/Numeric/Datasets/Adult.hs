@@ -96,9 +96,9 @@ instance FromRecord Adult where
                         <*> v.!9 <*> v.!10 <*> v.!11 <*> v.!12 <*> v.!13 <*> v.!14
 
 adult :: Dataset Adult
-adult = csvDataset $ URL $ uciMLDB /: "adult" /: "adult.data"
+adult = csvDataset $ URL $ uriDatasets /: "adult" /: "adult.data"
 
 adultTestSet :: Dataset Adult
-adultTestSet = withPreprocess (dropLines 1) $ csvDataset $ URL $ umassMLDB /: "adult" /: "adult.test"
+adultTestSet = withPreprocess (dropLines 1) $ csvDataset $ URL $ uriDatasets /: "adult" /: "adult.test"
 
 -- "http://mlr.cs.umass.edu/ml/machine-learning-databases/adult/adult.test"

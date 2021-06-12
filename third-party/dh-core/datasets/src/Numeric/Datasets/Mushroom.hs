@@ -359,4 +359,4 @@ charToHabitat = \case
 
 mushroom :: Dataset MushroomEntry
 mushroom = csvDataset
-   $ URL $ uciMLDB /: "mushroom" /: "agaricus-lepiota.data"
+   $ URL $ uriDatasets /: "mushroom" /: "agaricus-lepiota.data"

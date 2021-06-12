@@ -50,7 +50,7 @@ instance FromNamedRecord WineQuality where
 
 redWineQuality, whiteWineQuality :: Dataset WineQuality
 redWineQuality = csvHdrDatasetSep ';'
-   $ URL $ umassMLDB /: "wine-quality" /: "winequality-red.csv"
+   $ URL $ uriDatasets /: "wine-quality" /: "winequality-red.csv"
 
 whiteWineQuality = csvHdrDatasetSep ';'
-   $ URL $ umassMLDB /: "wine-quality" /: "winequality-white.csv"
+   $ URL $ uriDatasets /: "wine-quality" /: "winequality-white.csv"

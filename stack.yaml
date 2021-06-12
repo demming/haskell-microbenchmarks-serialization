@@ -39,7 +39,8 @@ extra-deps:
 - store-0.7.11
 - serialise-0.2.3.0
 
-- datasets-0.4.0
+# datasets
+- third-party/dh-core
 
 - winery-1.3.2
 - barbies-th-0.1.8@sha256:2855c0f80c683ad30295370e5d9e786d909355695054ae4126ae61ea5c7779c4,1085

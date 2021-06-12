@@ -45,7 +45,7 @@ instance FromRecord BreastCancerEntry where
 
 breastCancerDatabase :: Dataset BreastCancerEntry
 breastCancerDatabase = csvDataset
-   $ URL $ umassMLDB /: "breast-cancer-wisconsin" /: "breast-cancer-wisconsin.data"
+   $ URL $ uriDatasets /: "breast-cancer-wisconsin" /: "breast-cancer-wisconsin.data"
 
 data DiagnosticBreastCancer = DiagnosticBreastCancer
   { diagnosticID :: Int
@@ -92,8 +92,8 @@ instance FromRecord CellFeatures where
 
 diagnosticBreastCancer :: Dataset DiagnosticBreastCancer
 diagnosticBreastCancer = csvDataset
-   $ URL $ umassMLDB /: "breast-cancer-wisconsin" /: "wdbc.data"
+   $ URL $ uriDatasets /: "breast-cancer-wisconsin" /: "wdbc.data"
 
 prognosticBreastCancer :: Dataset PrognosticBreastCancer
 prognosticBreastCancer = csvDataset
-   $ URL $ umassMLDB /: "breast-cancer-wisconsin" /: "wpbc.data"
+   $ URL $ uriDatasets /: "breast-cancer-wisconsin" /: "wpbc.data"

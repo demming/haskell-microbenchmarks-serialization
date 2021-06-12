@@ -42,7 +42,7 @@ module Numeric.Datasets (getDataset, Dataset(..), Source(..), getDatavec, defaul
                          parseReadField, parseDashToCamelField,
                          yearToUTCTime,
                         -- * Dataset source URLs
-                        umassMLDB, uciMLDB) where
+                        uriDatasets) where
 
 import Data.Csv
 import Data.Monoid
@@ -322,14 +322,14 @@ yearToUTCTime yearDbl = UTCTime day dt
 -- * URLs
 
 -- | The UMass machine learning database
---
+-- NB. No longer available.
 -- <http://mlr.cs.umass.edu/ml/machine-learning-databases>
-umassMLDB :: Url 'Http
-umassMLDB = http "mlr.cs.umass.edu" /: "ml" /: "machine-learning-databases"
+-- uriDatasets :: Url 'Http
+-- uriDatasets = http "mlr.cs.umass.edu" /: "ml" /: "machine-learning-databases"
 
 -- | The UCI machine learning database
 --
 -- | <https://archive.ics.uci.edu/ml/machine-learning-databases>
-uciMLDB :: Url 'Https
-uciMLDB = https "archive.ics.uci.edu" /: "ml" /: "machine-learning-databases"
+uriDatasets :: Url 'Https
+uriDatasets = https "archive.ics.uci.edu" /: "ml" /: "machine-learning-databases"
 
